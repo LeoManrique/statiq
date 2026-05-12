@@ -189,7 +189,15 @@ func (h *StatiqHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 			stat, statErr := indexFile.Stat()
 			indexFile.Close()
-			if statErr != nil || stat.IsDir() {
+			if statErr != nil {
+				if os.IsPermission(statErr) {
+					http.Error(w, "Forbidden", http.StatusForbidden)
+				} else {
+					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				}
+				return
+			}
+			if stat.IsDir() {
 				continue
 			}
 			h.serveFile(w, r, filepath.Join(h.rootPath, indexPath))
