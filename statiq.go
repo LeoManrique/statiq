@@ -168,13 +168,16 @@ func (h *StatiqHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Try to serve an index file
+		// Try to serve an index file inline at the requested URL.
+		// Redirecting to the index file path would change the URL bar to
+		// `/foo/index.html`, which breaks SPA routers that match on the
+		// canonical path (`/foo/`).
 		for _, index := range h.indexFiles {
-			indexPath := path.Join(upath, index)  // Use path.Join for URL paths
+			indexPath := path.Join(upath, index)
 			indexFile, err := h.root.Open(indexPath)
 			if err == nil {
 				indexFile.Close()
-				localRedirect(w, r, indexPath)
+				h.serveFile(w, r, filepath.Join(h.rootPath, indexPath))
 				return
 			}
 		}
