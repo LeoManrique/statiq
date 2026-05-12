@@ -2,7 +2,7 @@ displayName: Statiq
 type: middleware
 iconPath: .assets/icon.png
 
-import: github.com/hhftechnology/statiq
+import: github.com/LeoManrique/statiq
 
 summary: 'A feature-rich static file server inside Traefik'
 
