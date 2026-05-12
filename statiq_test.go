@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	statiq "github.com/hhftechnology/statiq"
+	statiq "github.com/LeoManrique/statiq"
 )
 
 func TestStatiqBasicServing(t *testing.T) {

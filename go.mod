@@ -1,3 +1,3 @@
-module github.com/hhftechnology/statiq
+module github.com/LeoManrique/statiq
 
 go 1.19
