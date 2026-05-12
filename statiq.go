@@ -2,6 +2,7 @@ package statiq
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"html/template"
 	"io/fs"
@@ -175,11 +176,24 @@ func (h *StatiqHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		for _, index := range h.indexFiles {
 			indexPath := path.Join(upath, index)
 			indexFile, err := h.root.Open(indexPath)
-			if err == nil {
-				indexFile.Close()
-				h.serveFile(w, r, filepath.Join(h.rootPath, indexPath))
+			if err != nil {
+				if errors.Is(err, fs.ErrNotExist) {
+					continue
+				}
+				if os.IsPermission(err) {
+					http.Error(w, "Forbidden", http.StatusForbidden)
+				} else {
+					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				}
 				return
 			}
+			stat, statErr := indexFile.Stat()
+			indexFile.Close()
+			if statErr != nil || stat.IsDir() {
+				continue
+			}
+			h.serveFile(w, r, filepath.Join(h.rootPath, indexPath))
+			return
 		}
 
 		// If directory listing is disabled, return 404
